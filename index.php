@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: Application/json'); // Faire croire au navigateur qu'on est dans du json
+header('Content-Type: Application/json');
 
 // Allow from any origin
 if (isset($_SERVER['HTTP_ORIGIN'])) {
@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
         header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 
     if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
-        header("Access-Control-Allow-Headers:        {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+        header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
 
     exit(0);
 }
@@ -34,7 +34,6 @@ catch (Exception $exception) {
 
 if (isset($_GET["search"]) AND strlen($_GET["search"]) > 0) {
     $search = $_GET["search"];
-
 
     $query = $db->prepare("SELECT * FROM `cities` WHERE `name` LIKE '%{$search}%' LIMIT 20");
     $query->execute();
