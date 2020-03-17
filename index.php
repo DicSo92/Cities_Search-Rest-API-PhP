@@ -1,20 +1,46 @@
 <?php
 header('Content-Type: Application/json'); // Faire croire au navigateur qu'on est dans du json
 
+// Allow from any origin
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+    header('Access-Control-Allow-Credentials: true');
+    header('Access-Control-Max-Age: 86400');    // cache for 1 day
+}
+
+// Access-Control headers are received during OPTIONS requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+        header("Access-Control-Allow-Headers:        {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+
+    exit(0);
+}
+
 try {
     $db = new PDO('mysql:host=localhost;dbname=myweather;charset=utf8', 'root', '', array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
-    $retour["success"] = true;
-
+    $response["successBdd"] = true;
+    $response["searchDatas"] = [];
 }
 catch (Exception $exception) {
-    $retour["success"] = false;
-
+    $response["successBdd"] = false;
     die( 'Erreur : ' . $exception->getMessage() );
 }
-echo json_encode($retour);
 
-    $query = $db->prepare("SELECT * FROM `cities` WHERE `name` LIKE '%new y%'");
+
+
+if (isset($_GET["search"]) AND strlen($_GET["search"]) > 0) {
+    $search = $_GET["search"];
+
+
+    $query = $db->prepare("SELECT * FROM `cities` WHERE `name` LIKE '%{$search}%' LIMIT 20");
     $query->execute();
     $result = $query->fetchAll();
 
-echo json_encode($result);
+    $response["searchDatas"] = $result;
+}
+
+echo json_encode($response);
